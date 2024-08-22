@@ -29,38 +29,18 @@ class LocationFinderScreen extends StatefulWidget {
 }
 
 class _LocationFinderScreenState extends State<LocationFinderScreen> {
+  // Step 1: Add TextEditingController instances
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _pageSizeController = TextEditingController();
   final TextEditingController _pageController = TextEditingController();
+
+  // Future variable to hold API data
   late Future<List<dynamic>> payoutPartners;
 
   @override
   void initState() {
     super.initState();
     payoutPartners = Future.value([]);
-  }
-
-  Future<List<dynamic>> fetchPayoutPartners(String country, int pageSize, int page) async {
-    final response = await http.get(
-      Uri.parse(
-          'https://api-ubt.mukuru.com/taurus/v1/resources/pay-out-partners?country=$country&page_size=$pageSize&page=$page'),
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load payout partners');
-    }
-  }
-
-  void _search() {
-    final country = _countryController.text;
-    final pageSize = int.tryParse(_pageSizeController.text) ?? 10;
-    final page = int.tryParse(_pageController.text) ?? 1;
-
-    setState(() {
-      payoutPartners = fetchPayoutPartners(country, pageSize, page);
-    });
   }
 
   @override
@@ -73,9 +53,10 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: <Widget>[
+            // Step 2: Add TextField widgets for user input
             TextField(
               controller: _countryController,
-              decoration: const InputDecoration(labelText: 'Country (ISO2 code)'),
+              decoration: const InputDecoration(labelText: 'Country'),
             ),
             TextField(
               controller: _pageSizeController,
@@ -88,36 +69,7 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _search,
-              child: const Text('Search'),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: FutureBuilder<List<dynamic>>(
-                future: payoutPartners,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data?.length,
-                      itemBuilder: (context, index) {
-                        var location = snapshot.data?[index];
-                        return ListTile(
-                          title: Text(location['name'] ?? 'Unknown Location'),
-                          subtitle: Text(location['address'] ?? 'No address provided'),
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(child: Text('No locations found'));
-                  }
-                },
-              ),
-            ),
+            // Add other widgets here...
           ],
         ),
       ),
