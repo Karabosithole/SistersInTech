@@ -7,12 +7,13 @@ class FAQScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.orange,
         title: const Text('Frequently Asked Questions'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-          children: const <Widget>[
+          children: <Widget>[
             FAQItem(
               question: 'Can I use my card outside South Africa?',
               answer: 'Your Mukuru Card only works within South Africa and the online '
@@ -44,9 +45,17 @@ class FAQScreen extends StatelessWidget {
             ),
             FAQItem(
               question: 'Do I still need to pay for premiums for my Mukuru Cover if I have the Mukuru Benefit?',
-              answer: 'Yes, you will need to continue paying your premiums for the Mukuru Funeral Cover, as these are two separate policies.',
+              answer: 'Yes, you do. Mukuru’s Funeral Benefit is an added free benefit for the use of the Mukuru Card. If you want to be covered, you can sign up for Mukuru’s '
+                  'Funeral Cover which will ensure your family and yourself are fully covered in the event of an unexpected loss.',
             ),
-            // Additional FAQ items can be added here
+            FAQItem(
+              question: 'Can I use my Mukuru Card to pay bills?',
+              answer: 'Yes, Mukuru Card can be used to make payments for various services, such as utility bills, through a bank or online payment platform that accepts the card.',
+            ),
+            FAQItem(
+              question: 'Where can I get more information about Mukuru?',
+              answer: 'For more information, visit our website at www.mukuru.com or contact our customer support team.',
+            ),
           ],
         ),
       ),
@@ -58,25 +67,25 @@ class FAQItem extends StatelessWidget {
   final String question;
   final String answer;
 
-  const FAQItem({required this.question, required this.answer});
+  const FAQItem({
+    required this.question,
+    required this.answer,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(
-        question,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16.0,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: ExpansionTile(
+        title: Text(question, style: const TextStyle(fontWeight: FontWeight.bold)),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(answer),
+          ),
+        ],
       ),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Text(answer),
-        ),
-      ],
     );
   }
 }
-

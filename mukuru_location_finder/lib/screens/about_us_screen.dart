@@ -7,13 +7,14 @@ class AboutUsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.orange,
         title: const Text('About Us'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Text('Mukuru is a leading financial services provider...'),
+          children: <Widget>[
+            const Text('Mukuru is a leading financial services provider...'),
             // Add more details about the company.
           ],
         ),
@@ -21,3 +22,4 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 }
+

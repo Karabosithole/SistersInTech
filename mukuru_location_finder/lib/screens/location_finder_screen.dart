@@ -24,25 +24,29 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
   }
 
   Future<List<dynamic>> fetchPayoutLocations() async {
-    final String country = _countryController.text;
-    final String pageSize = _pageSizeController.text;
-    final String page = _pageController.text;
+    final String country = _countryController.text.toUpperCase();
+    final String pageSize = _pageSizeController.text.isNotEmpty ? _pageSizeController.text : '10';
+    final String page = _pageController.text.isNotEmpty ? _pageController.text : '1';
 
-    final response = await http.get(
-      Uri.parse(
-          'https://api-ubt.mukuru.com/taurus/v1/resources/pay-out-partners?country=$country&page_size=$pageSize&page=$page'),
-    );
+    final url = Uri.parse(
+        'https://api-ubt.mukuru.com/taurus/v1/resources/pay-out-partners?country=$country&page_size=$pageSize&page=$page');
+
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final data = json.decode(response.body);
+      if (data['items'] != null) {
+        return data['items'] as List<dynamic>;
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load payout locations');
     }
   }
 
   Future<List<String>> fetchCountrySuggestions(String query) async {
-    // You can use a local list of country names and codes, or fetch them from an API
-    List<String> countries = ['ZA', 'ZW', 'MW', 'MZ', 'NG']; // Replace with actual list
+    List<String> countries = ['ZB Bank', 'ZA', 'ZW', 'MW', 'MZ', 'NG'];
     return countries.where((country) => country.toLowerCase().startsWith(query.toLowerCase())).toList();
   }
 
@@ -51,12 +55,12 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Payout Locations'),
+        backgroundColor: Colors.orange,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: <Widget>[
-            // Using TypeAheadFormField correctly
             TypeAheadFormField<String>(
               textFieldConfiguration: TextFieldConfiguration(
                 controller: _countryController,
@@ -96,6 +100,9 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
                 });
               },
               child: const Text('Search'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+              ),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -103,18 +110,19 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
                 future: payoutPartners,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
+                    return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text('No locations found');
+                    return const Center(child: Text('No locations found'));
                   } else {
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
+                        final item = snapshot.data![index];
                         return ListTile(
-                          title: Text(snapshot.data![index]['name']),
-                          subtitle: Text(snapshot.data![index]['address']),
+                          title: Text(item['name'] ?? 'No name'),
+                          subtitle: Text(item['description'] ?? 'No description'),
                         );
                       },
                     );
@@ -128,4 +136,3 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
     );
   }
 }
-
