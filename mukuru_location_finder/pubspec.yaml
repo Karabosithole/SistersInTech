@@ -1,15 +1,15 @@
 name: mukuru_location_finder
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: 
+  http:
   cupertino_icons: ^1.0.8
   flutter_typeahead: ^4.0.0
 
@@ -20,3 +20,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/wallpaper2.jpg
+    - assets/aboutus.jpeg
+    - assets/welcomeMukuru.png
