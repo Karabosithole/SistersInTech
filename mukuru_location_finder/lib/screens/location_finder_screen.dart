@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class LocationFinderScreen extends StatefulWidget {
   const LocationFinderScreen({super.key});
@@ -39,6 +40,12 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
     }
   }
 
+  Future<List<String>> fetchCountrySuggestions(String query) async {
+    // You can use a local list of country names and codes, or fetch them from an API
+    List<String> countries = ['ZA', 'ZW', 'MW', 'MZ', 'NG']; // Replace with actual list
+    return countries.where((country) => country.toLowerCase().startsWith(query.toLowerCase())).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,9 +56,27 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: <Widget>[
-            TextField(
-              controller: _countryController,
-              decoration: const InputDecoration(labelText: 'Country (ISO2 Code)'),
+            // Using TypeAheadFormField correctly
+            TypeAheadFormField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: _countryController,
+                decoration: const InputDecoration(labelText: 'Country (ISO2 Code)'),
+              ),
+              suggestionsCallback: (pattern) async {
+                return fetchCountrySuggestions(pattern);
+              },
+              itemBuilder: (context, String suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              onSuggestionSelected: (String suggestion) {
+                _countryController.text = suggestion;
+              },
+              noItemsFoundBuilder: (context) => const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('No suggestions found'),
+              ),
             ),
             TextField(
               controller: _pageSizeController,
@@ -73,18 +98,18 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
               child: const Text('Search'),
             ),
             const SizedBox(height: 20),
-            FutureBuilder<List<dynamic>>(
-              future: payoutPartners,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No locations found');
-                } else {
-                  return Expanded(
-                    child: ListView.builder(
+            Expanded(
+              child: FutureBuilder<List<dynamic>>(
+                future: payoutPartners,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('No locations found');
+                  } else {
+                    return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         return ListTile(
@@ -92,10 +117,10 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
                           subtitle: Text(snapshot.data![index]['address']),
                         );
                       },
-                    ),
-                  );
-                }
-              },
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),
@@ -103,3 +128,4 @@ class _LocationFinderScreenState extends State<LocationFinderScreen> {
     );
   }
 }
+
